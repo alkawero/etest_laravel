@@ -35,6 +35,12 @@ class Exam extends Model
         
     }
 
+    public function semester()
+    {
+        return $this->belongsTo('App\Models\Parameter', 'semester', 'num_code')->where('group','semester');
+        
+    }
+
     public function exam_type()
     {
         return $this->belongsTo('App\Models\Parameter', 'exam_type', 'num_code')->where('group','exam_type');

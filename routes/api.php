@@ -82,4 +82,7 @@ Route::get('rancangan/{id}', 'RancanganController@getById')->where('id', '[0-9]+
 
 //-----------------------------------------------------------------------------------
 Route::get('exam', 'ExamController@getByParams');
+Route::post('exam', 'ExamController@create');
+Route::delete('exam', 'ExamController@delete');
+Route::get('exam/{id}', 'ExamController@getById')->where('id', '[0-9]+');
 

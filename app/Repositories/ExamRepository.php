@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Exam;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -58,65 +59,59 @@ class ExamRepository {
         //dd(DB::getQueryLog());       
     }
     
-    public function getRancangan()
+    public function getExam()
     {
-        return $this->rancangan;
+        return $this->exam;
     }
 
     public function create(Request $request){
-        $rancangan = new Rancangan();
-        $rancangan->creator = $request->creator;
-        $rancangan->status = $request->status;
-        $rancangan->tahun_ajaran_char = $request->tahun_ajaran_char;
-        $rancangan->soal_quota = $request->soal_quota;
-        $rancangan->quota_composition = $request->quota_composition;
-        $rancangan->subject = $request->subject;
-        $rancangan->grade_char = $request->grade_char;
-        $rancangan->grade_num = $request->grade_num;
-        $rancangan->jenjang = $request->jenjang;
-        $rancangan->collaboration_type = $request->collaboration_type;
-        $rancangan->partner = $request->partner;
-        $rancangan->partner_quota = $request->partner_quota;
-        $rancangan->exam_type_code = $request->exam_type_code;
-        $rancangan->mc_composition = $request->mc_composition;
-        $rancangan->es_composition = $request->es_composition;
-        $rancangan->save();  
+        //return $request;
+        $exam = new Exam();
+        $exam->creator = $request->creator;
+        $exam->status = $request->status;
+        $exam->tahun_ajaran_char = $request->tahun_ajaran_char;
+        $exam->rancangan_id = $request->rancangan;
+        $exam->subject = $request->subject;
+        $exam->grade_char = $request->grade_char;
+        $exam->grade_num = $request->grade_num;
+        $exam->jenjang = $request->jenjang;
+        $exam->exam_type = $request->exam_type;
+        $exam->schedule_date = $request->schedule_date;
+        $exam->start_time = $request->start_time;
+        $exam->end_time = $request->end_time;
+        $exam->pengawas = $request->pengawas;
+        $exam->duration = $request->duration;
         
-        foreach ($request->soals as $soal) {
-            $rancangan->soals()->syncWithoutDetaching([$soal['id']=>[
-                'bobot'=>$soal['bobot'],
-                'soal_num'=>$soal['soal_num'],
-                'add_by'=>$soal['add_by']]]);
-        }
-        
+        $exam->save();  
+                        
     
         
     }
 
 
     public function update(Request $request){
-        $rancangan = Rancangan::find($request->id);
-        $rancangan->creator = $request->creator;
-        $rancangan->status = $request->status;
-        $rancangan->tahun_ajaran_char = $request->tahun_ajaran_char;
-        $rancangan->soal_quota = $request->soal_quota;
-        $rancangan->quota_composition = $request->quota_composition;
-        $rancangan->subject = $request->subject;
-        $rancangan->grade_char = $request->grade_char;
-        $rancangan->grade_num = $request->grade_num;
-        $rancangan->jenjang = $request->jenjang;
-        $rancangan->collaboration_type = $request->collaboration_type;
-        $rancangan->partner = $request->partner;
-        $rancangan->partner_quota = $request->partner_quota;
-        $rancangan->exam_type_code = $request->exam_type_code;
-        $rancangan->mc_composition = $request->mc_composition;
-        $rancangan->es_composition = $request->es_composition;
-        $rancangan->save();
+        $exam = Exam::find($request->id);
+        $exam->creator = $request->creator;
+        $exam->status = $request->status;
+        $exam->tahun_ajaran_char = $request->tahun_ajaran_char;
+        $exam->soal_quota = $request->soal_quota;
+        $exam->quota_composition = $request->quota_composition;
+        $exam->subject = $request->subject;
+        $exam->grade_char = $request->grade_char;
+        $exam->grade_num = $request->grade_num;
+        $exam->jenjang = $request->jenjang;
+        $exam->collaboration_type = $request->collaboration_type;
+        $exam->partner = $request->partner;
+        $exam->partner_quota = $request->partner_quota;
+        $exam->exam_type_code = $request->exam_type_code;
+        $exam->mc_composition = $request->mc_composition;
+        $exam->es_composition = $request->es_composition;
+        $exam->save();
 
-        $this->rancanganSoal->where('rancangan_id',$rancangan->id)->delete();
+        $this->examSoal->where('exam_id',$exam->id)->delete();
 
         foreach ($request->soals as $soal) {
-            $rancangan->soals()->syncWithoutDetaching([$soal['id']=>[
+            $exam->soals()->syncWithoutDetaching([$soal['id']=>[
                 'bobot'=>$soal['bobot'],
                 'soal_num'=>$soal['soal_num'],
                 'add_by'=>$soal['add_by']]]);
@@ -129,12 +124,12 @@ class ExamRepository {
 
     public function delete($id){
         DB::table('options')->where('soal_id', $id)->delete();
-        $deleted = Rancangan::destroy($id);                  
+        $deleted = Exam::destroy($id);                  
         return $deleted;            
     }
 
     public function toggle($id,$active){        
-        $saved = Rancangan::where('id', $id)
+        $saved = Exam::where('id', $id)
             ->update([
             'active' => $active
             ]);
@@ -142,6 +137,6 @@ class ExamRepository {
     }
 
     public function getById($id){
-        return Rancangan::find($id);                    
+        return Exam::find($id);                    
     }
 }

@@ -22,7 +22,7 @@ class RancanganController extends Controller
         if($request->pageNum)
         return RancanganResource::collection($this->rancanganRepo->getByParams($request)->paginate($request->pageNum));        
         
-        return $this->rancanganRepo->getByParams($request);        
+        return RancanganResource::collection($this->rancanganRepo->getByParams($request)->get());        
         
     }
 
