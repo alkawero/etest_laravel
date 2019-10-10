@@ -29,9 +29,9 @@ class Exam extends Model
         
     }
 
-    public function status()
+    public function activity()
     {
-        return $this->belongsTo('App\Models\Parameter', 'status', 'num_code')->where('group','exam_status');
+        return $this->belongsTo('App\Models\Parameter', 'activity', 'num_code')->where('group','exam_activity');
         
     }
 

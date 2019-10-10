@@ -22,7 +22,7 @@ class ExamController extends Controller
         if($request->pageNum)
         return ExamResource::collection($this->examRepo->getByParams($request)->paginate($request->pageNum));        
         
-        return $this->examRepo->getByParams($request);        
+        return ExamResource::collection($this->examRepo->getByParams($request)->get());        
         
     }
 
@@ -43,7 +43,12 @@ class ExamController extends Controller
     }
 
     public function toggle(Request $request){        
-        $saved = $this->examRepo->toggle($request->id, $request->active);
+        $saved = $this->examRepo->toggle($request->id, $request->status);
+        return Response::json(['success' => $saved], 200);
+    }
+
+    public function updateActivity(Request $request){        
+        $saved = $this->examRepo->updateActivity($request->id, $request->activity);
         return Response::json(['success' => $saved], 200);
     }
 

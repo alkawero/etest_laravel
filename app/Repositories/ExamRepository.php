@@ -20,6 +20,10 @@ class ExamRepository {
     public function getByParams($params)
     {    
         //DB::enableQueryLog(); // Enable query log
+        $activityNol = null;
+        if($params->activity===0){
+            $activityNol = 'nol';
+        }
         $query =  $this->exam
         ->when($params->jenjang, function ($query) use ($params) {
             return $query->where('jenjang',$params->jenjang);
@@ -54,6 +58,12 @@ class ExamRepository {
         ->when($params->end_time, function ($query) use ($params) {
             return $query->where('end_time','<=',$params->end_time);
         })
+        ->when($activityNol, function ($query) use ($params) {
+            return $query->where('activity',intval($params->activity));
+        })
+        ->when($params->activity, function ($query) use ($params) {
+            return $query->where('activity',intval($params->activity));
+        })
         ; 
         return $query;
         //dd(DB::getQueryLog());       
@@ -83,6 +93,7 @@ class ExamRepository {
         $exam->duration = $request->duration;
         
         $exam->save();  
+        return $exam;
                         
     
         
@@ -94,32 +105,19 @@ class ExamRepository {
         $exam->creator = $request->creator;
         $exam->status = $request->status;
         $exam->tahun_ajaran_char = $request->tahun_ajaran_char;
-        $exam->soal_quota = $request->soal_quota;
-        $exam->quota_composition = $request->quota_composition;
+        $exam->rancangan_id = $request->rancangan;
         $exam->subject = $request->subject;
         $exam->grade_char = $request->grade_char;
         $exam->grade_num = $request->grade_num;
         $exam->jenjang = $request->jenjang;
-        $exam->collaboration_type = $request->collaboration_type;
-        $exam->partner = $request->partner;
-        $exam->partner_quota = $request->partner_quota;
-        $exam->exam_type_code = $request->exam_type_code;
-        $exam->mc_composition = $request->mc_composition;
-        $exam->es_composition = $request->es_composition;
-        $exam->save();
-
-        $this->examSoal->where('exam_id',$exam->id)->delete();
-
-        foreach ($request->soals as $soal) {
-            $exam->soals()->syncWithoutDetaching([$soal['id']=>[
-                'bobot'=>$soal['bobot'],
-                'soal_num'=>$soal['soal_num'],
-                'add_by'=>$soal['add_by']]]);
-        }
-        
-        
-        
-        
+        $exam->exam_type = $request->exam_type;
+        $exam->schedule_date = $request->schedule_date;
+        $exam->start_time = $request->start_time;
+        $exam->end_time = $request->end_time;
+        $exam->pengawas = $request->pengawas;
+        $exam->duration = $request->duration;
+        $exam->save();   
+        return $exam;
     }
 
     public function delete($id){
@@ -128,10 +126,18 @@ class ExamRepository {
         return $deleted;            
     }
 
-    public function toggle($id,$active){        
+    public function toggle($id,$status){        
         $saved = Exam::where('id', $id)
             ->update([
-            'active' => $active
+            'status' => $status
+            ]);
+            return $saved;
+    }
+
+    public function updateActivity($id,$activity){        
+        $saved = Exam::where('id', $id)
+            ->update([
+            'activity' => $activity
             ]);
             return $saved;
     }
