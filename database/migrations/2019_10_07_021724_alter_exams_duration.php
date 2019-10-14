@@ -14,7 +14,7 @@ class AlterExamsDuration extends Migration
     public function up()
     {
         Schema::table('exams', function($table) {
-            $table->integer('duration');
+            //$table->integer('duration');
         });
     }
 

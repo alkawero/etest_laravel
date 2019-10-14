@@ -14,9 +14,7 @@ class AlterSoal extends Migration
     public function up()
     {
         Schema::table('soals', function($table) {
-            $table->tinyInteger('jenjang',1);
-            $table->tinyInteger('grade',1);
-            $table->tinyInteger('subject',1);
+            
             
         });
     }

@@ -14,7 +14,7 @@ class AlterExams extends Migration
     public function up()
     {
         Schema::table('exams', function($table) {
-            $table->boolean('status');  
+            //$table->boolean('status');  
         });
     }
 
