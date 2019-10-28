@@ -33,7 +33,8 @@ class SoalResource extends JsonResource
             'type_code'=>$soal->answer_type,    
             'type_name'=>$soal->type()->value('value'),    
             'status'=>$soal->status,    
-            'active'=>$soal->active,    
+            'active'=>$soal->active, 
+             
         ];
         
     }

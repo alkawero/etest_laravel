@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Option;
 use App\Models\Soal;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Request;
 
 class SoalRepository {
@@ -17,9 +18,12 @@ class SoalRepository {
     }
 
     public function getByParams($params)
-    {    
+    {
         //DB::enableQueryLog(); // Enable query log
         $query =  $this->soal
+        ->when($params->user_id, function ($query) use ($params) {
+            return $query->where('create_by',$params->user_id);
+        })
         ->when($params->jenjang, function ($query) use ($params) {
             return $query->where('jenjang',$params->jenjang);
         })
@@ -53,14 +57,14 @@ class SoalRepository {
         ->when($params->status, function ($query) use ($params) {
             return $query->where('status',$params->status);
         })
-        ; 
+        ;
         //$result = $query->get();
         //return $result;
         //$soal = \App\Models\Soal::hydrate($result);
         return $query;
-        //dd(DB::getQueryLog());       
+        //dd(DB::getQueryLog());
     }
-    
+
     public function getSoal()
     {
         return $this->soal;
@@ -88,12 +92,23 @@ class SoalRepository {
         $kds        = $request->kds;
         $indicators = $request->indicators;
         $ranahs     = $request->ranahs;
-        
+
         $soal->save();
         $soal->kds()->attach($kds);
         $soal->indicators()->attach($indicators);
         $soal->ranahs()->attach($ranahs);
-        
+
+        if($soal->answer_type==='M'){
+            foreach ($request->options as $option) {
+                $opt = new Option();
+                $opt->content_type = $option['contentType'];
+                $opt->content     = $option['content']   ;
+                $opt->code =        $option['code'];
+                $opt->soal_id =     $soal->id;
+                $opt->save();
+            }
+        }
+
     }
 
 
@@ -122,17 +137,31 @@ class SoalRepository {
         $soal->kds()->sync($kds);
         $soal->indicators()->sync($indicators);
         $soal->ranahs()->sync($ranahs);
+
+
+
+        if($soal->answer_type==='M'){
+            Option::where('soal_id',$soal->id)->delete();
+            foreach ($request->options as $option) {
+                $opt = new Option();
+                $opt->content_type = $option['contentType'];
+                $opt->content     = $option['content']   ;
+                $opt->code =        $option['code'];
+                $opt->soal_id =     $soal->id;
+                $opt->save();
+            }
+        }
         $soal->save();
-        
+
     }
 
     public function delete($id){
         DB::table('options')->where('soal_id', $id)->delete();
-        $deleted = Soal::destroy($id);                  
-        return $deleted;            
+        $deleted = Soal::destroy($id);
+        return $deleted;
     }
 
-    public function toggle($id,$active){        
+    public function toggle($id,$active){
         $saved = Soal::where('id', $id)
             ->update([
             'active' => $active
@@ -140,7 +169,32 @@ class SoalRepository {
             return $saved;
     }
 
+
+
     public function getById($id){
-        return Soal::find($id);                    
+        return Soal::find($id);
+    }
+
+    public function saveImageOption($request){
+        $file = $request->file('file');
+        $destination = 'public/imgs';
+        $path = $file->store($destination);
+        $url = 'http://'.$request->getHttpHost().Storage::url($path);
+
+        $soal_id = $request->soal_id;
+        if($soal_id){
+            $content_type = 4;
+            $code = $request->code;
+            $content = $url;
+
+            DB::table('options')->insert(
+                ['soal_id' => $soal_id,
+                'code' => $code,
+                'content' => $content,
+                'content_type' => $content_type]
+            );
+        }
+        return ['url'=>$url,
+                'link'=>$url];
     }
 }

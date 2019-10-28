@@ -15,7 +15,7 @@ class CreateRancanganReviewerTable extends Migration
     {
         Schema::create('rancangan_reviewer', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('user_id');
+            $table->string('user_id',11);
             $table->integer('rancangan_id');
             $table->timestamps();
         });

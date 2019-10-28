@@ -23,27 +23,27 @@ class Soal extends Model
 
     public function creator()
     {
-        return $this->belongsTo('App\Models\User', 'create_by','emp_id');
-        
+        return $this->belongsTo('App\Models\User', 'create_by','emp_id')->select('emp_id','emp_name');
+
     }
 
     public function type()
     {
         return $this->belongsTo('App\Models\Parameter', 'answer_type', 'char_code')->where('group','answer_type');
-        
+
     }
 
     public function level()
     {
         return $this->belongsTo('App\Models\Parameter', 'level', 'num_code')->where('group','question_level');
-        
+
     }
 
-    
+
     public function subject($jenjang){
         if($jenjang==='SD'){
             return $this->belongsTo('App\Models\mapelSD', 'subject');
-        }else 
+        }else
         if($jenjang==='SMP'){
             return $this->belongsTo('App\Models\mapelSMP', 'subject');
         }else{

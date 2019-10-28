@@ -18,7 +18,9 @@ Route::middleware('auth:api')->get('/userx', function (Request $request) {
 });
 
 Route::get('user', 'UserController@getByParams');
+Route::get('user/student/', 'UserController@getUserStudent');
 Route::get('user/{id}', 'UserController@getById');
+Route::post('loginx', 'UserController@login');
 
 //-----------------------------------------------------------------------------------
 Route::post('param', 'ParamController@create');
@@ -52,6 +54,7 @@ Route::delete('role', 'RoleController@delete');
 
 //-----------------------------------------------------------------------------------
 Route::post('images/up', 'UploadController@uploadImg');
+Route::post('audios/up', 'UploadController@uploadAudio');
 
 //-----------------------------------------------------------------------------------
 Route::post('soal', 'SoalController@create');
@@ -60,7 +63,7 @@ Route::delete('soal', 'SoalController@delete');
 Route::patch('soal/toggle', 'SoalController@toggle');
 Route::put('soal', 'SoalController@update');
 Route::get('soal/{id}', 'SoalController@getById')->where('id', '[0-9]+');
-
+Route::post('option/image', 'SoalController@saveImageOption');
 //-----------------------------------------------------------------------------------
 Route::get('mapel', 'MapelController@getMapel');
 
@@ -77,15 +80,43 @@ Route::get('rancangan', 'RancanganController@getByParams');
 Route::post('rancangan', 'RancanganController@create');
 Route::delete('rancangan', 'RancanganController@delete');
 Route::patch('rancangan/toggle', 'RancanganController@toggle');
+Route::patch('rancangan/status', 'RancanganController@changeStatus');
 Route::put('rancangan', 'RancanganController@update');
 Route::get('rancangan/{id}', 'RancanganController@getById')->where('id', '[0-9]+');
+Route::post('rancangan/review', 'RancanganController@sendToReviewer');
 
 //-----------------------------------------------------------------------------------
 Route::get('exam', 'ExamController@getByParams');
 Route::post('exam', 'ExamController@create');
+Route::post('exam/answer', 'ExamController@saveAnswer');
 Route::delete('exam', 'ExamController@delete');
 Route::put('exam', 'ExamController@update');
 Route::patch('exam/toggle', 'ExamController@toggle');
 Route::patch('exam/activity', 'ExamController@updateActivity');
 Route::get('exam/{id}', 'ExamController@getById')->where('id', '[0-9]+');
+Route::get('exam/detail/{id}', 'ExamController@getDetailById')->where('id', '[0-9]+');
+Route::get('exam/users', 'ExamController@getUserParticipants');
+Route::put('exam/users', 'ExamController@updateUserParticipants');
+Route::get('exam/activity/status', 'ExamController@getActivityStatus');
+Route::get('exam/users/print', 'ExamController@printDompdfExamCard');
+
+//-----------------------------------------------------------------------------------
+Route::get('note', 'NoteController@getByParams');
+Route::post('note', 'NoteController@create');
+
+//-----------------------------------------------------------------------------------
+Route::get('subject/reviewer', 'SubjectReviewerController@getByParams');
+Route::post('subject/reviewer', 'SubjectReviewerController@create');
+Route::put('subject/reviewer', 'SubjectReviewerController@update');
+Route::delete('subject/reviewer', 'SubjectReviewerController@delete');
+
+//-----------------------------------------------------------------------------------
+Route::get('kelas', 'KelasController@getKelas');
+Route::get('kelas/student', 'KelasController@getStudents');
+Route::get('kelas/many/student', 'KelasController@getStudentsFromArrayClass');
+
+//-----------------------------------------------------------------------------------
+Route::get('math', 'UtilityController@getMathFormula');
+Route::put('math', 'UtilityController@updateMathFormula');
+Route::post('math', 'UtilityController@createMathFormula');
 

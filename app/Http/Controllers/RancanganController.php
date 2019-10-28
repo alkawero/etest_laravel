@@ -14,20 +14,25 @@ class RancanganController extends Controller
     public function __construct(RancanganRepository $rancanganRepo)
     {
         $this->rancanganRepo = $rancanganRepo;
-        
+
     }
 
     public function getByParams(Request $request)
-    {     
+    {
         if($request->pageNum)
-        return RancanganResource::collection($this->rancanganRepo->getByParams($request)->paginate($request->pageNum));        
-        
-        return RancanganResource::collection($this->rancanganRepo->getByParams($request)->get());        
-        
+        return RancanganResource::collection($this->rancanganRepo->getByParams($request)->paginate($request->pageNum));
+
+        return RancanganResource::collection($this->rancanganRepo->getByParams($request)->get());
+
     }
 
     public function create(Request $request){
         $saved = $this->rancanganRepo->create($request);
+        return Response::json(['success' => $saved], 200);
+    }
+
+    public function sendToReviewer(Request $request){
+        $saved = $this->rancanganRepo->sendToReviewer($request);
         return Response::json(['success' => $saved], 200);
     }
 
@@ -39,15 +44,23 @@ class RancanganController extends Controller
     public function delete(Request $request){
         $deleted = $this->rancanganRepo->delete($request->id);
         return Response::json(['success' => $deleted], 200);
-        
+
     }
 
-    public function toggle(Request $request){        
+    public function toggle(Request $request){
         $saved = $this->rancanganRepo->toggle($request->id, $request->active);
         return Response::json(['success' => $saved], 200);
     }
 
-    public function getById($id){
-        return new RancanganResource($this->rancanganRepo->getById($id));                    
+    public function changeStatus(Request $request){
+        $saved = $this->rancanganRepo->changeStatus($request->id, $request->status);
+        return Response::json(['success' => $saved], 200);
     }
+
+
+    public function getById($id){
+        return new RancanganResource($this->rancanganRepo->getById($id));
+    }
+
+
 }

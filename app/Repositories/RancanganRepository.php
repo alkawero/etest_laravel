@@ -5,15 +5,19 @@ namespace App\Repositories;
 use App\Models\Option;
 use App\Models\Soal;
 use App\Models\Rancangan;
+use App\Models\RancanganReviewer;
 use App\Models\RancanganSoal;
+use App\Models\SubjectReviewer;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Request;
 
-class RancanganRepository {
+class RancanganRepository
+{
 
     protected $rancangan;
     protected $rancanganSoal;
-    
+
 
     public function __construct(Rancangan $rancangan, RancanganSoal $rancanganSoal)
     {
@@ -22,49 +26,62 @@ class RancanganRepository {
     }
 
     public function getByParams($params)
-    {    
+    {
         //DB::enableQueryLog(); // Enable query log
+        $rancanganForReviewer = RancanganReviewer::where('user_id',$params->user_id)->pluck('rancangan_id');
         $query =  $this->rancangan
-        ->when($params->jenjang, function ($query) use ($params) {
-            return $query->where('jenjang',$params->jenjang);
-        })
-        ->when($params->grade_num, function ($query) use ($params) {
-            return $query->where('grade_num',$params->grade_num);
-        })
-        ->when($params->grade_char, function ($query) use ($params) {
-            return $query->where('grade_char',$params->grade_char);
-        })
-        ->when($params->subject, function ($query) use ($params) {
-            return $query->where('subject',$params->subject);
-        })
-        ->when($params->external, function ($query) use ($params) {
-            return $query->where('external',$params->external);
-        })
-        ->when($params->partner, function ($query) use ($params) {
-            return $query->where('partner',$params->partner);
-        })
-        ->when($params->exam_type, function ($query) use ($params) {
-            return $query->where('exam_type_code',$params->exam_type);
-        })
-        ->when($params->creator, function ($query) use ($params) {
-            return $query->where('creator',$params->creator);
-        })
-        ->when($params->tahun_ajaran, function ($query) use ($params) {
-            return $query->where('tahun_ajaran_char',$params->tahun_ajaran);
-        })
-        ->when($params->status, function ($query) use ($params) {
-            return $query->where('status',$params->status);
-        }); 
+            ->when(
+                $params->user_id,
+                function ($query) use ($params,$rancanganForReviewer) {
+                    $query->where(function ($query) use ($params,$rancanganForReviewer) {
+                        return $query
+                            ->where('creator', $params->user_id)
+                            ->orWhere('partner', $params->user_id)
+                            ->orWhereIn('id', $rancanganForReviewer);
+                    });
+                }
+            )
+            ->when($params->jenjang, function ($query) use ($params) {
+                return $query->where('jenjang', $params->jenjang);
+            })
+            ->when($params->grade_num, function ($query) use ($params) {
+                return $query->where('grade_num', $params->grade_num);
+            })
+            ->when($params->grade_char, function ($query) use ($params) {
+                return $query->where('grade_char', $params->grade_char);
+            })
+            ->when($params->subject, function ($query) use ($params) {
+                return $query->where('subject', $params->subject);
+            })
+            ->when($params->external, function ($query) use ($params) {
+                return $query->where('external', $params->external);
+            })
+            ->when($params->partner, function ($query) use ($params) {
+                return $query->where('partner', $params->partner);
+            })
+            ->when($params->exam_type, function ($query) use ($params) {
+                return $query->where('exam_type_code', $params->exam_type);
+            })
+            ->when($params->creator, function ($query) use ($params) {
+                return $query->where('creator', $params->creator);
+            })
+            ->when($params->tahun_ajaran, function ($query) use ($params) {
+                return $query->where('tahun_ajaran_char', $params->tahun_ajaran);
+            })
+            ->when($params->status, function ($query) use ($params) {
+                return $query->where('status', $params->status);
+            });
         return $query;
-        //dd(DB::getQueryLog());       
+        //dd(DB::getQueryLog());
     }
-    
+
     public function getRancangan()
     {
         return $this->rancangan;
     }
 
-    public function create(Request $request){
+    public function create(Request $request)
+    {
         $rancangan = new Rancangan();
         $rancangan->creator = $request->creator;
         $rancangan->status = $request->status;
@@ -81,21 +98,41 @@ class RancanganRepository {
         $rancangan->exam_type_code = $request->exam_type_code;
         $rancangan->mc_composition = $request->mc_composition;
         $rancangan->es_composition = $request->es_composition;
-        $rancangan->save();  
-        
+        $rancangan->save();
+
         foreach ($request->soals as $soal) {
-            $rancangan->soals()->syncWithoutDetaching([$soal['id']=>[
-                'bobot'=>$soal['bobot'],
-                'soal_num'=>$soal['soal_num'],
-                'add_by'=>$soal['add_by']]]);
+            $rancangan->soals()->syncWithoutDetaching([$soal['id'] => [
+                'bobot' => $soal['bobot'],
+                'soal_num' => $soal['soal_num'],
+                'add_by' => $soal['add_by']
+            ]]);
         }
-        
-    
-        
+    }
+
+    public function sendToReviewer(Request $request)
+    {
+
+        $rancangan = Rancangan::find($request->id);
+
+        $rancangan->status = $request->status;
+
+        $reviewers = SubjectReviewer::where('subject_id', $rancangan->subject)
+            ->where('jenjang', $rancangan->jenjang)->get();
+
+        foreach ($reviewers as $reviewer) {
+            DB::table('rancangan_reviewer')->updateOrInsert(
+                ['user_id' => $reviewer->user_id, 'rancangan_id' => $rancangan->id],
+                ['updated_at' => Carbon::now()]
+            );
+        }
+
+        $saved =  $rancangan->save();
     }
 
 
-    public function update(Request $request){
+
+    public function update(Request $request)
+    {
         $rancangan = Rancangan::find($request->id);
         $rancangan->creator = $request->creator;
         $rancangan->status = $request->status;
@@ -114,35 +151,46 @@ class RancanganRepository {
         $rancangan->es_composition = $request->es_composition;
         $rancangan->save();
 
-        $this->rancanganSoal->where('rancangan_id',$rancangan->id)->delete();
+        $this->rancanganSoal->where('rancangan_id', $rancangan->id)->delete();
 
         foreach ($request->soals as $soal) {
-            $rancangan->soals()->syncWithoutDetaching([$soal['id']=>[
-                'bobot'=>$soal['bobot'],
-                'soal_num'=>$soal['soal_num'],
-                'add_by'=>$soal['add_by']]]);
+            $rancangan->soals()->syncWithoutDetaching([$soal['id'] => [
+                'bobot' => $soal['bobot'],
+                'soal_num' => $soal['soal_num'],
+                'add_by' => $soal['add_by']
+            ]]);
         }
-        
-        
-        
-        
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         DB::table('options')->where('soal_id', $id)->delete();
-        $deleted = Rancangan::destroy($id);                  
-        return $deleted;            
+        $deleted = Rancangan::destroy($id);
+        return $deleted;
     }
 
-    public function toggle($id,$active){        
+    public function toggle($id, $active)
+    {
         $saved = Rancangan::where('id', $id)
             ->update([
-            'active' => $active
+                'active' => $active
             ]);
-            return $saved;
+        return $saved;
     }
 
-    public function getById($id){
-        return Rancangan::find($id);                    
+    public function changeStatus($id, $status)
+    {
+        $saved = Rancangan::where('id', $id)
+            ->update([
+                'status' => $status
+            ]);
+        return $saved;
+    }
+
+
+
+    public function getById($id)
+    {
+        return Rancangan::find($id);
     }
 }

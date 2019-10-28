@@ -25,25 +25,27 @@ class ExamResource extends JsonResource
         $rancanganObject->exam_type = $rancangan->exam_type()->first();
         $rancanganObject->subject_name = $rancangan->subject($rancangan->jenjang)->first()->mapel;
 
-        return [    
-            'id'=>$exam->id,        
-            'exam_type'=>$exam->exam_type()->first(),   
-            'subject_id'=> $exam->subject,         
-            'subject_name'=> $subject->mapel,         
+        return [
+            'id'=>$exam->id,
+            'exam_type'=>$exam->exam_type()->first(),
+            'subject_id'=> $exam->subject,
+            'subject_name'=> $subject->mapel,
             'jenjang'=>$exam->jenjang,
-            'grade_char'=>$exam->grade_char,    
-            'grade_num'=>$exam->grade_num,    
-            'creator'=>$exam->creator()->first(),    
-            'tahun_ajaran_char'=>$exam->tahun_ajaran_char,    
+            'grade_char'=>$exam->grade_char,
+            'grade_num'=>$exam->grade_num,
+            'creator'=>$exam->creator()->first(),
+            'tahun_ajaran_char'=>$exam->tahun_ajaran_char,
             'semester'=>$exam->semester()->first(),
             'status'=>$exam->status,
             'activity'=>$exam->activity()->first(),
-            'pengawas'=>$exam->pengawas()->first(),    
+            'pengawas'=>$exam->pengawas()->first(),
             'schedule_date'=>$exam->schedule_date,
             'start_time'=>$exam->start_time,
             'end_time'=>$exam->end_time,
             'duration'=>$exam->duration,
             'rancangan'=>$rancanganObject,
+            'class_participants'=>KelasResource::collection($exam->kelasParticipants($exam->jenjang)->get()),
+            'user_generated'=>($exam->studentParticipants($exam->jenjang)->count())>0?true:false,
             'created_at'=>$exam->created_at];
     }
 }

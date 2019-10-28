@@ -17,13 +17,13 @@ class CreateNotesTable extends Migration
             $table->bigIncrements('id');
             $table->boolean('note_type_code');
             $table->text('text');
-            $table->text('tittle');             
+            $table->text('tittle');
             $table->string('from',11);
-            $table->string('to_person',11);
-            $table->tinyInteger('to_role');
-            $table->boolean('represent_role');
+            $table->string('to_person',11)->nullable();
+            $table->tinyInteger('to_role')->nullable();
+            $table->boolean('represent_role')->nullable();
             $table->integer('object_id');
-            $table->boolean('status'); 
+            $table->boolean('status');
             $table->timestamps();
         });
     }
