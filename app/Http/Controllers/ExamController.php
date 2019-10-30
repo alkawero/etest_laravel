@@ -8,7 +8,9 @@ use App\Http\Resources\StudentResource;
 use App\Repositories\ExamRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use Barryvdh\DomPDF\Facade as PDF;
+use Barryvdh\DomPDF\Facade as DomPDF;
+use Barryvdh\Snappy\Facades\SnappyPdf as SnappyPDF;
+use Barryvdh\Snappy\Facades\SnappyImage as SnappyImage;
 
 class ExamController extends Controller
 {
@@ -22,6 +24,7 @@ class ExamController extends Controller
 
     public function getByParams(Request $request)
     {
+        //return $this->examRepo->getByParams($request);
         if($request->pageNum)
         return ExamResource::collection($this->examRepo->getByParams($request)->paginate($request->pageNum));
 
@@ -83,8 +86,16 @@ class ExamController extends Controller
 
     public function printDompdfExamCard(Request $request){
         $data = $this->examRepo->getUserParticipants($request->exam_id)->get();
-        $pdf = PDF::loadView('examCard',['data'=>$data]);
+        $pdf = DomPDF::loadView('examCard',['data'=>$data]);
             $pdf->setPaper('a4' , 'portrait');
+        return $pdf->download('file.pdf');
+    }
+
+    public function printSnappyPdfExamCard(Request $request){
+        $data = $this->examRepo->getUserParticipants($request->exam_id)->get();
+        $pdf = SnappyPDF::loadView('examCard',['data'=>$data]);
+        //$pdf = SnappyPDF::loadView('welcome');
+
         return $pdf->download('file.pdf');
     }
 

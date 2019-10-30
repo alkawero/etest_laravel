@@ -98,7 +98,7 @@ Route::get('exam/detail/{id}', 'ExamController@getDetailById')->where('id', '[0-
 Route::get('exam/users', 'ExamController@getUserParticipants');
 Route::put('exam/users', 'ExamController@updateUserParticipants');
 Route::get('exam/activity/status', 'ExamController@getActivityStatus');
-Route::get('exam/users/print', 'ExamController@printDompdfExamCard');
+Route::get('exam/users/print', 'ExamController@printSnappyPdfExamCard');
 
 //-----------------------------------------------------------------------------------
 Route::get('note', 'NoteController@getByParams');

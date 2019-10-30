@@ -24,12 +24,23 @@ class ExamRepository
 
     public function getByParams($params)
     {
+        $roles = json_decode($params->user_role,true);
+        $exam = null;
+
+        if(in_array(1, $roles)){//if student, can only access the exam which they account registered to
+            $examForStudent = ExamStudentParticipant::where('exam_account_num',$params->exam_account_num)->first();
+            $exam = Exam::find($examForStudent->exam_id);
+        }
+
         //DB::enableQueryLog(); // Enable query log
         $activityNol = null;
         if ($params->activity === 0) {
             $activityNol = 'nol';
         }
         $query =  $this->exam
+            ->when($params->exam_account_num, function ($query) use ($params,$exam) {
+                return $query->where('id', $exam->id);
+            })
             ->when($params->jenjang, function ($query) use ($params) {
                 return $query->where('jenjang', $params->jenjang);
             })
@@ -56,6 +67,12 @@ class ExamRepository
             })
             ->when($params->schedule_date, function ($query) use ($params) {
                 return $query->whereDate('schedule_date', $params->schedule_date);
+            })
+            ->when($params->start_date, function ($query) use ($params) {
+                return $query->whereDate('schedule_date','>=' ,$params->start_date);
+            })
+            ->when($params->end_date, function ($query) use ($params) {
+                return $query->whereDate('schedule_date','<=', $params->end_date);
             })
             ->when($params->start_time, function ($query) use ($params) {
                 return $query->where('start_time', '>=', $params->start_time);
