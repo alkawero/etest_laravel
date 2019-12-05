@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterRancanganNullable extends Migration
+class AlterExamStudentParticipant extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class AlterRancanganNullable extends Migration
      */
     public function up()
     {
-        Schema::table('rancangans', function($table) {
-            $table->string('partner_id', 11)->nullable()->change();
+        Schema::table('exam_student_participant', function($table) {
+            $table->boolean('status')->default(0);
         });
-
     }
 
     /**

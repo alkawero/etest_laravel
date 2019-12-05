@@ -89,6 +89,7 @@ Route::post('rancangan/review', 'RancanganController@sendToReviewer');
 Route::get('exam', 'ExamController@getByParams');
 Route::post('exam', 'ExamController@create');
 Route::post('exam/answer', 'ExamController@saveAnswer');
+Route::post('exam/finish', 'ExamController@finish');
 Route::delete('exam', 'ExamController@delete');
 Route::put('exam', 'ExamController@update');
 Route::patch('exam/toggle', 'ExamController@toggle');

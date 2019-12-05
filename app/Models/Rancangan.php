@@ -60,7 +60,7 @@ class Rancangan extends Model
 
     public function partner()
     {
-        return $this->belongsTo('App\Models\User', 'partner','emp_id');
+        return $this->belongsTo('App\Models\User', 'partner_id','emp_id');
 
     }
 

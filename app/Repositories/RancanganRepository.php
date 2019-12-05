@@ -29,15 +29,25 @@ class RancanganRepository
     {
         //DB::enableQueryLog(); // Enable query log
         $rancanganForReviewer = RancanganReviewer::where('user_id',$params->user_id)->pluck('rancangan_id');
+
         $query =  $this->rancangan
             ->when(
-                $params->user_id,
-                function ($query) use ($params,$rancanganForReviewer) {
-                    $query->where(function ($query) use ($params,$rancanganForReviewer) {
+                $params->is_not_reviewer,
+                function ($query) use ($params) {
+                    $query->where(function ($query) use ($params) {
                         return $query
                             ->where('creator', $params->user_id)
-                            ->orWhere('partner', $params->user_id)
-                            ->orWhereIn('id', $rancanganForReviewer);
+                            ->orWhere('partner_id', $params->user_id);
+                    });
+                }
+            )
+            ->when(
+                $params->is_reviewer,
+                function ($query) use ($rancanganForReviewer) {
+                    $query->where(function ($query) use ($rancanganForReviewer) {
+                        return $query
+                            ->orWhereIn('id', $rancanganForReviewer)
+                            ->where('status','<>',0);
                     });
                 }
             )
@@ -57,7 +67,7 @@ class RancanganRepository
                 return $query->where('external', $params->external);
             })
             ->when($params->partner, function ($query) use ($params) {
-                return $query->where('partner', $params->partner);
+                return $query->where('partner_id', $params->partner);
             })
             ->when($params->exam_type, function ($query) use ($params) {
                 return $query->where('exam_type_code', $params->exam_type);
@@ -70,7 +80,8 @@ class RancanganRepository
             })
             ->when($params->status, function ($query) use ($params) {
                 return $query->where('status', $params->status);
-            });
+            })
+            ->where('status','<>',11);
         return $query;
         //dd(DB::getQueryLog());
     }
@@ -84,6 +95,7 @@ class RancanganRepository
     {
         $rancangan = new Rancangan();
         $rancangan->creator = $request->creator;
+        $rancangan->title = $request->title;
         $rancangan->status = $request->status;
         $rancangan->tahun_ajaran_char = $request->tahun_ajaran_char;
         $rancangan->soal_quota = $request->soal_quota;
@@ -93,11 +105,14 @@ class RancanganRepository
         $rancangan->grade_num = $request->grade_num;
         $rancangan->jenjang = $request->jenjang;
         $rancangan->collaboration_type = $request->collaboration_type;
-        $rancangan->partner = $request->partner;
-        $rancangan->partner_quota = $request->partner_quota;
+        $rancangan->partner_id = $request->partner;
         $rancangan->exam_type_code = $request->exam_type_code;
         $rancangan->mc_composition = $request->mc_composition;
         $rancangan->es_composition = $request->es_composition;
+        $rancangan->mc_creator = $request->mc_creator;
+        $rancangan->es_creator = $request->es_creator;
+        $rancangan->mc_partner = $request->mc_partner;
+        $rancangan->es_partner = $request->es_partner;
         $rancangan->save();
 
         foreach ($request->soals as $soal) {
@@ -134,6 +149,7 @@ class RancanganRepository
     public function update(Request $request)
     {
         $rancangan = Rancangan::find($request->id);
+        $rancangan->title = $request->title;
         $rancangan->creator = $request->creator;
         $rancangan->status = $request->status;
         $rancangan->tahun_ajaran_char = $request->tahun_ajaran_char;
@@ -144,11 +160,14 @@ class RancanganRepository
         $rancangan->grade_num = $request->grade_num;
         $rancangan->jenjang = $request->jenjang;
         $rancangan->collaboration_type = $request->collaboration_type;
-        $rancangan->partner = $request->partner;
-        $rancangan->partner_quota = $request->partner_quota;
+        $rancangan->partner_id = $request->partner;
         $rancangan->exam_type_code = $request->exam_type_code;
         $rancangan->mc_composition = $request->mc_composition;
         $rancangan->es_composition = $request->es_composition;
+        $rancangan->mc_creator = $request->mc_creator;
+        $rancangan->es_creator = $request->es_creator;
+        $rancangan->mc_partner = $request->mc_partner;
+        $rancangan->es_partner = $request->es_partner;
         $rancangan->save();
 
         $this->rancanganSoal->where('rancangan_id', $rancangan->id)->delete();
@@ -164,9 +183,9 @@ class RancanganRepository
 
     public function delete($id)
     {
-        DB::table('options')->where('soal_id', $id)->delete();
-        $deleted = Rancangan::destroy($id);
-        return $deleted;
+        //DB::table('options')->where('soal_id', $id)->delete();
+
+        return $this->changeStatus($id,11);
     }
 
     public function toggle($id, $active)

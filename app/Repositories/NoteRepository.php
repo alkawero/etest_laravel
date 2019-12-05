@@ -19,8 +19,8 @@ class NoteRepository {
     {
         //DB::enableQueryLog(); // Enable query log
         $query =  $this->note
-        ->when($params->note_type_code, function ($query) use ($params) {
-            return $query->where('note_type_code',$params->note_type_code);
+        ->when($params->note_type_codes, function ($query) use ($params) {
+            return $query->whereIn('note_type_code',$params->note_type_codes);
         })
         ->when($params->text, function ($query) use ($params) {
             return $query->where('text','like','%'.$params->text.'%');

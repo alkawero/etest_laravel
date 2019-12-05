@@ -33,7 +33,7 @@ class RancanganResource extends JsonResource
             'es_composition'=>$rancangan->es_composition,
             'collaboration'=>$rancangan->collaboration_type()->first(),
             'status'=>$rancangan->status()->first(),
-            'partner_id'=>$rancangan->partner,
+            'partner_id'=>$rancangan->partner_id,
             'partner_name'=>$rancangan->partner()->value('emp_name'),
             'partner_quota'=>$rancangan->partner_quota,
             'checked_date'=>$rancangan->checked_date,
@@ -44,6 +44,11 @@ class RancanganResource extends JsonResource
             'created_at'=>$rancangan->created_at,
             'soals'=>SoalResourceRancangan::collection($rancangan->soals()->get()),
             'reviewers'=>$rancangan->reviewers()->get(),
+            'title'=>$rancangan->title,
+            'mc_partner'=>$rancangan->mc_partner,
+            'es_partner'=>$rancangan->es_partner,
+            'mc_creator'=>$rancangan->mc_creator,
+            'es_creator'=>$rancangan->es_creator
 
 
 

@@ -18,4 +18,10 @@ class Note extends Model
         return $this->belongsTo('App\Models\User', 'to_person','emp_id');
 
     }
+
+    public function type()
+    {
+        return $this->belongsTo('App\Models\Parameter', 'note_type_code', 'num_code')->where('group','note_type')->select('num_code','value');
+
+    }
 }

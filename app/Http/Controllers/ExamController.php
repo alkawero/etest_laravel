@@ -8,7 +8,6 @@ use App\Http\Resources\StudentResource;
 use App\Repositories\ExamRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use Barryvdh\DomPDF\Facade as DomPDF;
 use Barryvdh\Snappy\Facades\SnappyPdf as SnappyPDF;
 use Barryvdh\Snappy\Facades\SnappyImage as SnappyImage;
 
@@ -34,6 +33,11 @@ class ExamController extends Controller
 
     public function create(Request $request){
         $saved = $this->examRepo->create($request);
+        return Response::json(['success' => $saved], 200);
+    }
+
+    public function finish(Request $request){
+        $saved = $this->examRepo->finish($request);
         return Response::json(['success' => $saved], 200);
     }
 
@@ -84,12 +88,6 @@ class ExamController extends Controller
         return Response::json(['success' => $saved], 200);
     }
 
-    public function printDompdfExamCard(Request $request){
-        $data = $this->examRepo->getUserParticipants($request->exam_id)->get();
-        $pdf = DomPDF::loadView('examCard',['data'=>$data]);
-            $pdf->setPaper('a4' , 'portrait');
-        return $pdf->download('file.pdf');
-    }
 
     public function printSnappyPdfExamCard(Request $request){
         $data = $this->examRepo->getUserParticipants($request->exam_id)->get();

@@ -35,6 +35,7 @@ class UserStudentResource extends JsonResource
         return [
             'id' => $this->student->nis,
             'name' => $this->student->exam_account_num,
+            'status'=>$this->student->status,
             'roles' => [$role],
             'pages' => $pgs
         ];

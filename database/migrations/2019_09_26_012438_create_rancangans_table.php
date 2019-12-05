@@ -23,10 +23,9 @@ class CreateRancangansTable extends Migration
             $table->tinyInteger('soal_quota');
             $table->char('quota_composition',1);
             $table->tinyInteger('mc_composition');
-            $table->tinyInteger('es_composition'); 
-            $table->char('collaboration_type',1); 
-            $table->string('partner',11);
-            $table->tinyInteger('partner_quota');
+            $table->tinyInteger('es_composition');
+            $table->char('collaboration_type',1);
+            $table->string('partner_id',11);
             $table->boolean('status');
             $table->dateTime('checked_date');
             $table->dateTime('approved_date');

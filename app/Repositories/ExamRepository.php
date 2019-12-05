@@ -15,11 +15,13 @@ class ExamRepository
 
     protected $exam;
     protected $kelasRepo;
+    protected $examStudentParticipant;
 
-    public function __construct(Exam $exam, KelasRepository $kelasRepo)
+    public function __construct(Exam $exam, KelasRepository $kelasRepo, ExamStudentParticipant $examStudentParticipant)
     {
         $this->exam = $exam;
         $this->kelasRepo = $kelasRepo;
+        $this->examStudentParticipant = $examStudentParticipant;
     }
 
     public function getByParams($params)
@@ -321,6 +323,14 @@ class ExamRepository
         }
     }
 
+
+    public function finish(Request $request)
+    {
+        $this->examStudentParticipant
+        ->where('exam_id', $request->exam_id)
+        ->where('exam_account_num', $request->exam_account_num)
+        ->update(['status' => 1]);
+    }
 
 
 }

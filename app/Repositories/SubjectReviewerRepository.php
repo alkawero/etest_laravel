@@ -30,6 +30,11 @@ class SubjectReviewerRepository {
         return $query;
     }
 
+    public function getByUserId($user_id)
+    {
+        return $this->sr->where('user_id',$user_id);
+    }
+
     public function create(Request $request)
     {
         $sr = new SubjectReviewer();

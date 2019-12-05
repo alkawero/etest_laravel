@@ -4,21 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\RancanganResource;
 use App\Repositories\RancanganRepository;
+use App\Repositories\SubjectReviewerRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 class RancanganController extends Controller
 {
     protected $rancanganRepo;
+    protected $subjectReviewerRepository;
 
-    public function __construct(RancanganRepository $rancanganRepo)
+    public function __construct(RancanganRepository $rancanganRepo, SubjectReviewerRepository $subjectReviewerRepository)
     {
         $this->rancanganRepo = $rancanganRepo;
+        $this->subjectReviewerRepository = $subjectReviewerRepository;
 
     }
 
     public function getByParams(Request $request)
     {
+        $reviewer = $this->subjectReviewerRepository->getByUserId($request->user_id)->first();
+        if($reviewer)
+        $request->is_reviewer=true;
+        else
+        $request->is_not_reviewer=true;
+
         if($request->pageNum)
         return RancanganResource::collection($this->rancanganRepo->getByParams($request)->paginate($request->pageNum));
 
