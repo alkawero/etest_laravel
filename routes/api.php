@@ -81,6 +81,9 @@ Route::post('rancangan', 'RancanganController@create');
 Route::delete('rancangan', 'RancanganController@delete');
 Route::patch('rancangan/toggle', 'RancanganController@toggle');
 Route::patch('rancangan/status', 'RancanganController@changeStatus');
+Route::patch('rancangan/revise', 'RancanganController@changeToRevision');
+Route::patch('rancangan/reject', 'RancanganController@changeToReject');
+Route::patch('rancangan/approve', 'RancanganController@changeToApprove');
 Route::put('rancangan', 'RancanganController@update');
 Route::get('rancangan/{id}', 'RancanganController@getById')->where('id', '[0-9]+');
 Route::post('rancangan/review', 'RancanganController@sendToReviewer');
@@ -121,3 +124,9 @@ Route::get('math', 'UtilityController@getMathFormula');
 Route::put('math', 'UtilityController@updateMathFormula');
 Route::post('math', 'UtilityController@createMathFormula');
 
+//-----------------------------------------------------------------------------------
+Route::get('result/nis', 'ResultController@getResultOfNis');
+Route::get('result/kelas', 'ResultController@getResultOfKelas');
+
+//-----------------------------------------------------------------------------------
+Route::get('log', 'LogController@getByParams');

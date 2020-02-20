@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\ExamResource;
 use App\Http\Resources\ExamDetailResource;
 use App\Http\Resources\StudentResource;
+use App\Http\Resources\ExamSelectResource;
 use App\Repositories\ExamRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
@@ -24,8 +25,13 @@ class ExamController extends Controller
     public function getByParams(Request $request)
     {
         //return $this->examRepo->getByParams($request);
-        if($request->pageNum)
+        if($request->pageNum){
         return ExamResource::collection($this->examRepo->getByParams($request)->paginate($request->pageNum));
+        }
+
+        if($request->for_select){
+        return ExamSelectResource::collection($this->examRepo->getByParams($request)->get());
+        }
 
         return ExamResource::collection($this->examRepo->getByParams($request)->get());
 

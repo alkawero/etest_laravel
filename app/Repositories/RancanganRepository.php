@@ -150,7 +150,6 @@ class RancanganRepository
     {
         $rancangan = Rancangan::find($request->id);
         $rancangan->title = $request->title;
-        $rancangan->creator = $request->creator;
         $rancangan->status = $request->status;
         $rancangan->tahun_ajaran_char = $request->tahun_ajaran_char;
         $rancangan->soal_quota = $request->soal_quota;

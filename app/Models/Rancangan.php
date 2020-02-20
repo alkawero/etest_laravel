@@ -21,13 +21,11 @@ class Rancangan extends Model
     public function creator()
     {
         return $this->belongsTo('App\Models\User', 'creator','emp_id');
-
     }
 
     public function quota_composition()
     {
         return $this->belongsTo('App\Models\Parameter', 'quota_composition', 'char_code')->where('group','quota_composition');
-
     }
 
     public function collaboration_type()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\RancanganResource;
+use App\Repositories\LogRepository;
 use App\Repositories\RancanganRepository;
 use App\Repositories\SubjectReviewerRepository;
 use Illuminate\Http\Request;
@@ -11,11 +12,13 @@ use Illuminate\Support\Facades\Response;
 class RancanganController extends Controller
 {
     protected $rancanganRepo;
+    protected $logRepo;
     protected $subjectReviewerRepository;
 
-    public function __construct(RancanganRepository $rancanganRepo, SubjectReviewerRepository $subjectReviewerRepository)
+    public function __construct(LogRepository $logRepo,RancanganRepository $rancanganRepo, SubjectReviewerRepository $subjectReviewerRepository)
     {
         $this->rancanganRepo = $rancanganRepo;
+        $this->logRepo = $logRepo;
         $this->subjectReviewerRepository = $subjectReviewerRepository;
 
     }
@@ -42,6 +45,7 @@ class RancanganController extends Controller
 
     public function sendToReviewer(Request $request){
         $saved = $this->rancanganRepo->sendToReviewer($request);
+        $this->logRepo->create($request->sender,1,"send to reviewer",$request->id);
         return Response::json(['success' => $saved], 200);
     }
 
@@ -65,6 +69,25 @@ class RancanganController extends Controller
         $saved = $this->rancanganRepo->changeStatus($request->id, $request->status);
         return Response::json(['success' => $saved], 200);
     }
+
+    public function changeToRevision(Request $request){
+        $saved = $this->rancanganRepo->changeStatus($request->id, 4);
+        $this->logRepo->create($request->revise_by,2,$request->notes,$request->id);
+        return Response::json(['success' => $saved], 200);
+    }
+
+    public function changeToReject(Request $request){
+        $saved = $this->rancanganRepo->changeStatus($request->id, 5);
+        $this->logRepo->create($request->reject_by,3,$request->notes,$request->id);
+        return Response::json(['success' => $saved], 200);
+    }
+
+    public function changeToApprove(Request $request){
+        $saved = $this->rancanganRepo->changeStatus($request->id, 3);
+        $this->logRepo->create($request->approve_by,4,"aprroved by reviewer",$request->id);
+        return Response::json(['success' => $saved], 200);
+    }
+
 
 
     public function getById($id){
